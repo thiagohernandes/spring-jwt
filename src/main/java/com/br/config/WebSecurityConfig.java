@@ -24,13 +24,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
 		httpSecurity.csrf().disable().authorizeRequests()
-			.antMatchers("/home").permitAll()
-			.antMatchers(HttpMethod.POST, "/login").permitAll()
+			.antMatchers("/api/pages").permitAll()
+			.antMatchers(HttpMethod.POST, "/api/login").permitAll()
 			.anyRequest().authenticated()
 			.and()
 			
 			// filtra requisições de login
-			.addFilterBefore(new JWTLoginFilter("/login", authenticationManager()), UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(new JWTLoginFilter("/api/login", authenticationManager()), UsernamePasswordAuthenticationFilter.class)
 			
 			// filtra outras requisições para verificar a presença do JWT no header
 			.addFilterBefore(new JWTAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -38,20 +38,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		// cria uma conta default
-	/*	auth.inMemoryAuthentication()
-			.withUser("admin")
-			.password("password")
-			.roles("ADMIN");*/
 		for(User u : userService.allUsersList()) {
 			auth.inMemoryAuthentication()
 			.withUser(u.getName())
 			.password(u.getPassword())
 			.roles("ADMIN");
 		}
-		/*auth.inMemoryAuthentication()
-			.withUser(userService.allUsersList().get(0).getName())
-			.password(userService.allUsersList().get(0).getPassword())
-			.roles("ADMIN"); */
 	}
 }
